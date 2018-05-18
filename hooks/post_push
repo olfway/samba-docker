@@ -1,0 +1,35 @@
+#!/bin/bash
+
+source hooks/_conf
+
+function docker_manifest_annotate() {
+
+    DOCKER_PLATFORM="$1"
+    DOCKER_PLATFORM_NAME="$(echo "${DOCKER_PLATFORM}" | jq -r '.platform')"
+    DOCKER_PLATFORM_ARCH="$(echo "${DOCKER_PLATFORM}" | jq -r '.architecture')"
+
+    DOCKER_MANIFEST_ANNOTATE_ARGS="${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG} --os linux --arch ${DOCKER_PLATFORM_ARCH}"
+
+    DOCKER_PLATFORM_VARIANT="$(echo "${DOCKER_PLATFORM}" | jq -r '.variant')"
+    if [ "${DOCKER_PLATFORM_VARIANT}" != "null" ]; then
+        DOCKER_MANIFEST_ANNOTATE_ARGS="${DOCKER_MANIFEST_ANNOTATE_ARGS} --variant ${DOCKER_PLATFORM_VARIANT}"
+    fi
+
+    docker manifest annotate "${DOCKER_REPO}:${DOCKER_TAG}" ${DOCKER_MANIFEST_ANNOTATE_ARGS}
+}
+
+DOCKER_PLATFORM_REPOS=""
+for DOCKER_PLATFORM in ${DOCKER_PLATFORMS}; do
+    DOCKER_PLATFORM_NAME="$(echo "${DOCKER_PLATFORM}" | jq -r '.platform')"
+    DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS} ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}"
+done
+
+DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS:1}"
+
+docker manifest create "${DOCKER_REPO}:${DOCKER_TAG}" ${DOCKER_PLATFORM_REPOS}
+
+for DOCKER_PLATFORM in ${DOCKER_PLATFORMS}; do
+    docker_manifest_annotate "${DOCKER_PLATFORM}"
+done
+
+docker manifest push "${DOCKER_REPO}:${DOCKER_TAG}"

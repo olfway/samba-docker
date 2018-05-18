@@ -1,0 +1,6 @@
+.git
+etc
+hooks
+docker-compose.yml
+**/.DS_Store
+**/*.swp

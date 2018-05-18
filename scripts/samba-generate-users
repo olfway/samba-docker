@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -eu
+
+env | egrep "^SAMBA_USER_[^=]+_NAME=" | sed 's/_NAME=/ /' | sort \
+| while
+    read USER_PREFIX USERNAME
+do
+    ARGS=""
+    USER_UID="$(env | fgrep "${USER_PREFIX}_UID=" | cut -f2 -d '=')"
+    PASSWORD="$(env | fgrep "${USER_PREFIX}_PASSWORD" | cut -f2 -d '=')"
+
+    if [ "$USER_UID" != "" ]; then
+        ARGS="--uid $USER_UID"
+    fi
+
+    ./scripts/samba-user-add $ARGS $USERNAME "$PASSWORD"
+done
+
+pdbedit -L | cut -f1 -d':' | sort \
+| while
+    read USERNAME
+do
+    if [ "$(env | egrep "^SAMBA_USER_.*_NAME=${USERNAME}\$")" == "" ]; then
+        pdbedit -u "${USERNAME}" -x
+    fi
+done

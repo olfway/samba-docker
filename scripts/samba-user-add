@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -eu
+
+if [ "$#" -eq "0" ]; then
+    echo "Usage: $0 [--uid N] USER [PASSWORD]"
+    exit 1
+fi
+
+if [ "$1" == "--uid" ]; then
+    USERADD_ARGS="-o $1 $2"
+    shift 2
+fi
+
+USERNAME="$1"
+PASSWORD="${2:-}"
+
+if [ "$PASSWORD" == "" ]; then
+   read -s -p 'Password: ' PASSWORD
+   echo
+fi
+
+if ! getent passwd "$USERNAME" > /dev/null ; then
+    useradd -M -s /usr/sbin/nologin ${USERADD_ARGS:-} "$USERNAME"
+fi
+echo -e "$PASSWORD\n$PASSWORD" | smbpasswd -s -a "$USERNAME"

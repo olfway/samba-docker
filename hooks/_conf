@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eu
+
+export PATH=".:$PATH"
+
+export DOCKER_TAG="${DOCKER_TAG:-latest}"
+export DOCKER_REPO="${DOCKER_REPO:-olfway/samba}"
+
+export DOCKER_PLATFORMS='
+{"platform":"amd64","architecture":"amd64","os":"linux"}
+{"platform":"arm32v5","architecture":"arm","os":"linux","variant":"v5"}
+{"platform":"arm32v7","architecture":"arm","os":"linux","variant":"v7"}
+{"platform":"aarch64","architecture":"arm64","os":"linux","variant":"v8"}'

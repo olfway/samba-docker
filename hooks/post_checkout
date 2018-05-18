@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -eu
+
+export DEBIAN_FRONTEND=noninteractive
+
+DOCKER_RELEASE="18.03.1-ce"
+DOCKER_DIGEST_MAC_X86_64="6d5490daa105d082a814e1baa6d3562741fb4c286f9183858411dbccdc6e0c0b"
+DOCKER_DIGEST_LINUX_X86_64="63d836ed6a4e36176d6db7a50de0fb79a0823ce00ec1f114edfa81b8b027fc39"
+
+if ! which -s jq; then
+    apt-get update
+    apt-get install -y jq
+fi
+
+DOCKER_ARCH="$(uname -m)"
+DOCKER_OS="$(uname -s | tr 'A-Z' 'a-z' | sed 's/darwin/mac/')"
+
+DOCKER_DIGEST_VAR="DOCKER_DIGEST_$(echo "$DOCKER_OS" | tr 'a-z' 'A-Z')_$(echo "$DOCKER_ARCH" | tr 'a-z' 'A-Z')"
+
+curl -s "https://download.docker.com/$DOCKER_OS/static/stable/$DOCKER_ARCH/docker-$DOCKER_RELEASE.tgz" | gunzip | tar -x --strip-components 1 docker/docker
+
+if ! echo "${!DOCKER_DIGEST_VAR} docker" | sha256sum --check --status ; then
+    echo "Hash not match:"
+    sha256sum --binary docker
+    exit 1
+fi
+
+echo 'docker version:'
+./docker --version
+
+echo 'setup binfmt interpreters'
+docker run --rm --privileged multiarch/qemu-user-static:register
+
+mkdir -p ~/.docker
+if [ -f ~/.docker/config.json ]; then
+    echo "config.json already exist:"
+    cat ~/.docker/config.json
+    exit 1
+fi
+echo "{'auths': ${DOCKERCFG}, 'experimental': 'enabled'}" | tr "'" '"' > ~/.docker/config.json

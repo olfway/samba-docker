@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -eu
+
+CONFIG_FILE="$1"
+
+SAMBA_CONFIG_OVERWRITE="${SAMBA_CONFIG_OVERWRITE:-no}"
+
+if [ -f "${CONFIG_FILE}" ]; then
+    if [ "${SAMBA_CONFIG_OVERWRITE}" == "no" ]; then
+        echo "Config file already exist, set SAMBA_CONFIG_OVERWRITE=yes to overwrite"
+        exit 0
+    fi
+    rm "${CONFIG_FILE}"
+fi
+
+function getenv() {
+    PREFIX="$1"
+    env \
+    | grep "${PREFIX}" \
+    | sed -r 's/'"${PREFIX}"'([^=]+)=/\L\1 /' \
+    | sed -r 's/^(fruit)_/\1:/' \
+    | sort
+}
+
+echo '[global]' >> "${CONFIG_FILE}"
+
+getenv "^SAMBA_GLOBAL_" \
+| while
+    read KEY VALUE
+do
+    echo "${KEY//_/ } = ${VALUE}" >> "${CONFIG_FILE}"
+done
+
+echo >> "${CONFIG_FILE}"
+
+env | egrep "^SAMBA_SHARE_[^=]+_NAME=" | sed 's/_NAME=/_ /' | sort \
+| while
+    read SHARE_PREFIX SHARE_NAME
+do
+    echo "[${SHARE_NAME}]" >> "${CONFIG_FILE}"
+    getenv "^${SHARE_PREFIX}" \
+    | while
+        read KEY VALUE
+    do
+        if [ "${KEY}" == "name" ]; then
+            continue
+        fi
+        echo "${KEY//_/ } = ${VALUE}" >> "${CONFIG_FILE}"
+    done
+    echo >> "${CONFIG_FILE}"
+done
+
+sed -i '$ d' "${CONFIG_FILE}"

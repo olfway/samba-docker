@@ -1,0 +1,37 @@
+version: '2.3'
+
+services:
+  time-machine:
+    image: olfway/samba
+    build:
+      context: .
+    init: true
+    hostname: time-machine
+    container_name: time-machine
+    ports:
+      - 445:445
+    volumes:
+      - ./etc:/app/etc
+      - ./scripts:/app/scripts
+      - ./storage:/app/storage
+      - /run/dbus:/run/dbus
+    environment:
+      - SAMBA_CONFIG_OVERWRITE=yes
+
+      - SAMBA_GLOBAL_LOG_LEVEL=1
+      - SAMBA_GLOBAL_MDNS_NAME=mdns
+      - SAMBA_GLOBAL_FRUIT:MODEL=MacPro
+      - SAMBA_GLOBAL_PASSDB_BACKEND=smbpasswd
+      - SAMBA_GLOBAL_SOCKET_OPTIONS=IPTOS_LOWDELAY TCP_NODELAY
+
+      - SAMBA_USER_BACKUP_NAME=backup
+      - SAMBA_USER_BACKUP_UID=0
+      - SAMBA_USER_BACKUP_PASSWORD=Backup1
+
+      - SAMBA_SHARE_TIMEMACHINE_NAME=TimeMachine
+      - SAMBA_SHARE_TIMEMACHINE_PATH=/app/storage
+      - SAMBA_SHARE_TIMEMACHINE_WRITEABLE=yes
+      - SAMBA_SHARE_TIMEMACHINE_ADMIN_USERS=backup
+      - SAMBA_SHARE_TIMEMACHINE_FRUIT_TIME_MACHINE=yes
+      - SAMBA_SHARE_TIMEMACHINE_FRUIT_TIME_MACHINE_MAX_SIZE=1T
+      - SAMBA_SHARE_TIMEMACHINE_VFS_OBJECTS=catia fruit streams_xattr

@@ -1,0 +1,36 @@
+diff -urN samba-4.8.1.orig/source3/printing/print_standard.c samba-4.8.1/source3/printing/print_standard.c
+--- samba-4.8.1.orig/source3/printing/print_standard.c	2018-01-14 22:41:58.000000000 +0200
++++ samba-4.8.1/source3/printing/print_standard.c	2018-04-29 11:55:08.000000000 +0300
+@@ -68,7 +68,7 @@
+ 	bool print_warning = false;
+ 
+ 	if ((pcap_file = fopen(pcap_name, "r")) == NULL) {
+-		DEBUG(0, ("Unable to open printcap file %s for read!\n", pcap_name));
++		DEBUG(3, ("Unable to open printcap file %s for read!\n", pcap_name));
+ 		talloc_free(frame);
+ 		return false;
+ 	}
+diff -urN samba-4.8.1.orig/source3/printing/printer_list.c samba-4.8.1/source3/printing/printer_list.c
+--- samba-4.8.1.orig/source3/printing/printer_list.c	2018-01-14 22:41:58.000000000 +0200
++++ samba-4.8.1/source3/printing/printer_list.c	2018-04-29 11:54:51.000000000 +0300
+@@ -231,7 +231,7 @@
+ 
+ 	status = dbwrap_fetch_bystring(db, talloc_tos(), PL_TIMESTAMP_KEY, &data);
+ 	if (!NT_STATUS_IS_OK(status)) {
+-		DEBUG(1, ("Failed to fetch record!\n"));
++		DEBUG(3, ("Failed to fetch record!\n"));
+ 		goto done;
+ 	}
+ 
+diff -urN samba-4.8.1.orig/source3/smbd/server_reload.c samba-4.8.1/source3/smbd/server_reload.c
+--- samba-4.8.1.orig/source3/smbd/server_reload.c	2018-01-14 22:41:58.000000000 +0200
++++ samba-4.8.1/source3/smbd/server_reload.c	2018-04-29 15:46:30.000000000 +0300
+@@ -66,7 +66,7 @@
+ 
+ 	ok = pcap_cache_loaded(&pcap_last_update);
+ 	if (!ok) {
+-		DEBUG(1, ("pcap cache not loaded\n"));
++		DEBUG(3, ("pcap cache not loaded\n"));
+ 		talloc_free(frame);
+ 		return;
+ 	}

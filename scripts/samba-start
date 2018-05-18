@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -eu
+
+mkdir -p etc
+
+if [ "${!SAMBA_GLOBAL_*}${!SAMBA_SHARE_*}" != "" ]; then
+    ./scripts/samba-generate-config etc/smb.conf
+fi
+
+./bin/pdbedit -L > /dev/null
+
+if [ "${!SAMBA_USER_*}" != "" ]; then
+    ./scripts/samba-generate-users
+fi
+
+awk '/^path = / { print $3 }' etc/smb.conf  | xargs mkdir -v -p
+
+exec /app/sbin/smbd -FS --no-process-group
