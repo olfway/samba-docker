@@ -37,6 +37,8 @@ function docker_build() {
     done
 
     DOCKER_BUILD_ARGS="${DOCKER_BUILD_ARGS:1}"
+
+    echo "$(date '+%H:%M:%S') Building ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}..."
     docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}" "${DOCKERFILE_PATH}"
 }
 
