@@ -8,6 +8,9 @@ LABEL maintainer="Pavel Volkovitskiy <olfway@olfway.net>"
 ENV LANG 'C.UTF-8'
 ENV DEBIAN_FRONTEND=noninteractive
 
+COPY --from=olfway/qemu-user-static /qemu-arm-static /usr/bin/
+COPY --from=olfway/qemu-user-static /qemu-aarch64-static /usr/bin/
+
 RUN set -x \
     && echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/zz-no-install-recommends
 
@@ -102,6 +105,9 @@ LABEL maintainer="Pavel Volkovitskiy <olfway@olfway.net>"
 
 ENV LANG 'C.UTF-8'
 ENV DEBIAN_FRONTEND=noninteractive
+
+COPY --from=olfway/qemu-user-static /qemu-arm-static /usr/bin/
+COPY --from=olfway/qemu-user-static /qemu-aarch64-static /usr/bin/
 
 RUN set -x \
     && echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/zz-no-install-recommends
