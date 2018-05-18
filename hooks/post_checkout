@@ -8,7 +8,7 @@ DOCKER_RELEASE="18.03.1-ce"
 DOCKER_DIGEST_MAC_X86_64="6d5490daa105d082a814e1baa6d3562741fb4c286f9183858411dbccdc6e0c0b"
 DOCKER_DIGEST_LINUX_X86_64="63d836ed6a4e36176d6db7a50de0fb79a0823ce00ec1f114edfa81b8b027fc39"
 
-if ! which -s jq; then
+if ! which jq > /dev/null ; then
     apt-get update
     apt-get install -y jq
 fi
