@@ -37,7 +37,7 @@ export DOCKER_PLATFORMS='
 {"platform":"arm32v7","architecture":"arm","os":"linux","variant":"v7"}
 {"platform":"aarch64","architecture":"arm64","os":"linux","variant":"v8"}'
 
-export DOCKER_PLATFORM_NAMES="$(echo "${DOCKER_PLATFORMS}" | jq -r ".platform" | tr '\n' ' ' | sed 's/ $//')"
+export DOCKER_PLATFORM_NAMES="$(echo "${DOCKER_PLATFORMS}" | awk -F '"' '$2 == "platform" { printf "%s ", $4 }' | sed 's/ $//')"
 
 export DOCKER_PLATFORM_NAME="$(echo "${DOCKER_TAG}" | egrep -o "^(${DOCKER_PLATFORM_NAMES// /|})")" || true
 
