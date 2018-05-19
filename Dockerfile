@@ -1,7 +1,7 @@
 #
 # Build image
 #
-ARG DEBIAN_IMAGE=debian:stretch-slim
+ARG DEBIAN_IMAGE=debian:buster-slim
 FROM ${DEBIAN_IMAGE} as build
 LABEL maintainer="Pavel Volkovitskiy <olfway@olfway.net>"
 
@@ -52,6 +52,7 @@ RUN set -x \
        libarchive-dev \
        libavahi-client-dev \
        libcap-dev \
+       libcmocka-dev \
        libgcrypt20-dev \
        libgnutls28-dev \
        libgpg-error-dev \
@@ -59,6 +60,7 @@ RUN set -x \
        libkrb5-dev \
        libncurses5-dev \
        libpopt-dev \
+       libtdb-dev \
        pkg-config \
        python \
        xfslibs-dev \
@@ -76,6 +78,7 @@ RUN set -x \
     && ./configure \
         --prefix=/app \
         --with-smbpasswd-file=/app/etc/smbpasswd \
+        --bundled-libraries=talloc \
         --enable-avahi \
         --disable-iprint \
         --disable-python \
@@ -90,7 +93,7 @@ RUN set -x \
         --without-ads
 
 RUN set -x \
-    && make -j2
+    && make
 
 RUN set -x \
     && make install
@@ -122,6 +125,7 @@ RUN set -x \
        libgssapi-krb5-2 \
        libkrb5-3 \
        libpopt0 \
+       libtdb1 \
        man-db \
        vim \
     && apt-get clean
