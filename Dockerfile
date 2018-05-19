@@ -90,7 +90,7 @@ RUN set -x \
         --without-ads
 
 RUN set -x \
-    && make -j3
+    && make -j2
 
 RUN set -x \
     && make install
