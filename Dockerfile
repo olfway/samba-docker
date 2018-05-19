@@ -12,6 +12,7 @@ COPY --from=olfway/qemu-user-static /qemu-arm-static /usr/bin/
 COPY --from=olfway/qemu-user-static /qemu-aarch64-static /usr/bin/
 
 RUN set -x \
+    && echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/zz-force-ipv4 \
     && echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/zz-no-install-recommends
 
 RUN set -x \
@@ -27,8 +28,8 @@ WORKDIR /usr/src
 ARG SAMBA_VERSION=4.8.2
 ARG SAMBA_URL=https://download.samba.org/pub/samba
 RUN set -x \
-    && curl -O "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.asc" \
-    && curl "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.gz" | gunzip -d > "samba-${SAMBA_VERSION}.tar"
+    && curl --ipv4 -O "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.asc" \
+    && curl --ipv4 "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.gz" | gunzip -d > "samba-${SAMBA_VERSION}.tar"
 
 COPY samba-pubkey.asc .
 
@@ -113,6 +114,7 @@ COPY --from=olfway/qemu-user-static /qemu-arm-static /usr/bin/
 COPY --from=olfway/qemu-user-static /qemu-aarch64-static /usr/bin/
 
 RUN set -x \
+    && echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/zz-force-ipv4 \
     && echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/zz-no-install-recommends
 
 RUN set -x \
