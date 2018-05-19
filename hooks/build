@@ -12,7 +12,7 @@ function docker_build() {
 
     echo "$(date '+%H:%M:%S') Building ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}..."
 
-    DOCKER_PLATFORM="$(echo "${DOCKER_PLATFORMS}" | jq -cr "select(.platform == \"${DOCKER_PLATFORM_NAME}\")")"
+    DOCKER_PLATFORM="$(echo "${DOCKER_PLATFORMS}" | jq -r "select(.platform == \"${DOCKER_PLATFORM_NAME}\")" | tr -d '\n ')"
 
     DOCKER_PLATFORM_ARCH="$(echo "${DOCKER_PLATFORM}" | jq -r '.architecture')"
     SELECT_FILTER=".platform.architecture == \"${DOCKER_PLATFORM_ARCH}\""
