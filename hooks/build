@@ -8,8 +8,11 @@ fi
 
 function docker_build() {
 
-    DOCKER_PLATFORM="$1"
-    DOCKER_PLATFORM_NAME="$(echo "${DOCKER_PLATFORM}" | jq -r '.platform')"
+    DOCKER_PLATFORM_NAME="$1"
+
+    echo "$(date '+%H:%M:%S') Building ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}..."
+
+    DOCKER_PLATFORM="$(echo "${DOCKER_PLATFORMS}" | jq -cr "select(.platform == \"${DOCKER_PLATFORM_NAME}\")")"
 
     DOCKER_PLATFORM_ARCH="$(echo "${DOCKER_PLATFORM}" | jq -r '.architecture')"
     SELECT_FILTER=".platform.architecture == \"${DOCKER_PLATFORM_ARCH}\""
@@ -38,12 +41,15 @@ function docker_build() {
 
     DOCKER_BUILD_ARGS="${DOCKER_BUILD_ARGS:1}"
 
-    echo "$(date '+%H:%M:%S') Building ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}..."
-    docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}" "${DOCKERFILE_PATH}"
+    docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" "${DOCKERFILE_PATH}"
 }
 
 find . -type f -name '*-manifest.json' -delete
 
-for DOCKER_PLATFORM in ${DOCKER_PLATFORMS}; do
-    docker_build "${DOCKER_PLATFORM}"
-done
+if [ "${DOCKER_PLATFORM_NAME}" != "" ]; then
+    docker_build "${DOCKER_PLATFORM_NAME}"
+else
+    for DOCKER_PLATFORM_NAME in ${DOCKER_PLATFORM_NAMES}; do
+        docker_build "${DOCKER_PLATFORM_NAME}"
+    done
+fi

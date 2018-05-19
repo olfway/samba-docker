@@ -4,11 +4,49 @@ set -eu
 
 export PATH=".:$PATH"
 
-export DOCKER_TAG="${DOCKER_TAG:-latest}"
+if [ "${DOCKER_TAG:-}" == "" ]; then
+    case "$(uname -m)" in
+    x86_64)
+        export DOCKER_TAG="amd64-latest"
+        ;;
+    aarch64)
+        export DOCKER_TAG="aarch64-latest"
+        ;;
+    armv7l)
+        export DOCKER_TAG="arm32v7-latest"
+        ;;
+    armv[56]l)
+        export DOCKER_TAG="arm32v5-latest"
+        ;;
+    *)
+        echo "Cannot detect host type"
+        exit 1
+        ;;
+    esac
+fi
+
 export DOCKER_REPO="${DOCKER_REPO:-olfway/samba}"
+
+if [ "${DOCKER_REPO:=}" != "" -a "${DOCKER_REPO:0:15}" == 'index.docker.io' ]; then
+    export DOCKER_HUB="1"
+fi
 
 export DOCKER_PLATFORMS='
 {"platform":"amd64","architecture":"amd64","os":"linux"}
 {"platform":"arm32v5","architecture":"arm","os":"linux","variant":"v5"}
 {"platform":"arm32v7","architecture":"arm","os":"linux","variant":"v7"}
 {"platform":"aarch64","architecture":"arm64","os":"linux","variant":"v8"}'
+
+export DOCKER_PLATFORM_NAMES="$(echo "${DOCKER_PLATFORMS}" | jq -r ".platform" | tr '\n' ' ' | sed 's/ $//')"
+
+export DOCKER_PLATFORM_NAME="$(echo "${DOCKER_TAG}" | egrep -o "^(${DOCKER_PLATFORM_NAMES// /|})")" || true
+
+DOCKER_TAG="$(echo "$DOCKER_TAG" | sed -E "s/^${DOCKER_PLATFORM_NAME}-?//")"
+if [ "${DOCKER_TAG}" != "" ]; then
+    export DOCKER_TAG="-${DOCKER_TAG}"
+fi
+
+if [ "${GIT_SHA1:-}" == "" ]; then
+    GIT_SHA1="$(git rev-parse HEAD)"
+fi
+export DOCKER_TAG_REV="$(echo "${DOCKER_TAG}-${GIT_SHA1:0:7}")"

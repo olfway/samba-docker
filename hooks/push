@@ -2,7 +2,19 @@
 
 source hooks/_conf
 
-for DOCKER_PLATFORM in ${DOCKER_PLATFORMS}; do
-    DOCKER_PLATFORM_NAME="$(echo "${DOCKER_PLATFORM}" | jq -r '.platform')"
-    docker push ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}
-done
+function docker_push() {
+    DOCKER_PLATFORM_NAME="$1"
+    echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}..."
+    docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}"
+
+    echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}..."
+    docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" 
+}
+
+if [ "${DOCKER_PLATFORM_NAME}" != "" ]; then
+    docker_push "${DOCKER_PLATFORM_NAME}"
+else
+    for DOCKER_PLATFORM_NAME in ${DOCKER_PLATFORM_NAMES}; do
+        docker_push "${DOCKER_PLATFORM_NAME}"
+    done
+fi

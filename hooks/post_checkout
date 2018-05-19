@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -eu
+source hooks/_conf
+
+echo "$(date '+%H:%M:%S') Running post-checkout hook..."
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -9,8 +11,13 @@ DOCKER_DIGEST_MAC_X86_64="6d5490daa105d082a814e1baa6d3562741fb4c286f9183858411db
 DOCKER_DIGEST_LINUX_X86_64="63d836ed6a4e36176d6db7a50de0fb79a0823ce00ec1f114edfa81b8b027fc39"
 
 if ! which jq > /dev/null ; then
-    apt-get update
-    apt-get install -y jq
+    if [ "${DOCKER_HUB:-}" == "1" ]; then
+        apt-get update
+        apt-get install -y jq
+    else
+        echo "Please install 'jq'"
+        exit 1
+    fi
 fi
 
 DOCKER_ARCH="$(uname -m)"
@@ -26,10 +33,10 @@ if ! echo "${!DOCKER_DIGEST_VAR} docker" | sha256sum --check --status ; then
     exit 1
 fi
 
-echo 'docker version:'
+echo "$(date '+%H:%M:%S') Local docker client:"
 ./docker --version
 
-echo 'setup binfmt interpreters'
+echo "$(date '+%H:%M:%S') Setup binfmt interpreters..."
 docker run --rm --privileged multiarch/qemu-user-static:register
 
 mkdir -p ~/.docker
