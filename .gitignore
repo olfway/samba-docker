@@ -1,4 +1,6 @@
 etc
 storage
+*-manifest.json
 **.swp
+**.orig
 **.DS_Store
