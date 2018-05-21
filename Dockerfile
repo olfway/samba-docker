@@ -1,6 +1,7 @@
 #
 # Build image
 #
+ARG DEBIAN_IMAGE=debian:buster-slim
 FROM debian:buster-slim as build
 
 ENV LANG 'C.UTF-8'
@@ -121,7 +122,6 @@ CMD [ "/bin/bash" ]
 #
 # Run image
 #
-ARG DEBIAN_IMAGE=debian:buster-slim
 FROM ${DEBIAN_IMAGE}
 LABEL maintainer="Pavel Volkovitskiy <olfway@olfway.net>"
 
