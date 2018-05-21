@@ -158,4 +158,6 @@ WORKDIR "/app"
 
 ENV PATH=/app/scripts:/app/sbin:/app/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+RUN /app/sbin/smbd --version > /dev/null
+
 CMD [ "/app/scripts/samba-start" ]
