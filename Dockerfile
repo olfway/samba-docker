@@ -1,9 +1,7 @@
 #
 # Build image
 #
-ARG DEBIAN_IMAGE=debian:buster-slim
-FROM ${DEBIAN_IMAGE} as build
-LABEL maintainer="Pavel Volkovitskiy <olfway@olfway.net>"
+FROM debian:buster-slim as build
 
 ENV LANG 'C.UTF-8'
 ENV DEBIAN_FRONTEND=noninteractive
@@ -17,11 +15,18 @@ RUN set -x \
 
 RUN set -x \
     && apt-get update \
-    && apt-get dist-upgrade -y \
     && apt-get install -y \
        ca-certificates \
        curl \
-       gnupg
+       docbook \
+       docbook-xml \
+       docbook-xsl \
+       file \
+       gnupg \
+       patch \
+       pkg-config \
+       python \
+       xsltproc
 
 WORKDIR /usr/src
 
@@ -41,33 +46,6 @@ RUN set -x \
 RUN set -x \
     && tar -xf "samba-${SAMBA_VERSION}.tar"
 
-RUN set -x \
-    && apt-get update \
-    && apt-get install -y \
-       build-essential \
-       docbook \
-       docbook-xml \
-       docbook-xsl \
-       file \
-       libaio-dev \
-       libarchive-dev \
-       libavahi-client-dev \
-       libcap-dev \
-       libcmocka-dev \
-       libgcrypt20-dev \
-       libgnutls28-dev \
-       libgpg-error-dev \
-       libgpgme-dev \
-       libkrb5-dev \
-       libncurses5-dev \
-       libpopt-dev \
-       libtdb-dev \
-       pkg-config \
-       python \
-       xfslibs-dev \
-       xsltproc \
-       zlib1g-dev
-
 COPY patches patches/
 
 WORKDIR /usr/src/samba-${SAMBA_VERSION}
@@ -75,8 +53,50 @@ WORKDIR /usr/src/samba-${SAMBA_VERSION}
 RUN set -x \
     && patch -i ../patches/samba-4.8.1-hide-pcap-errors.patch -p1
 
+ARG QEMU
+ENV QEMU=$QEMU
+
+ARG TOOLCHAIN
+ENV TOOLCHAIN=$TOOLCHAIN
+
+ARG ARCH_DEBIAN
+ENV ARCH_DEBIAN=$ARCH_DEBIAN
+
 RUN set -x \
-    && ./configure \
+    && if [ "$(dpkg --print-architecture)" = "$ARCH_DEBIAN" ]; then \
+          apt-get install -y build-essential ; \
+       else \
+          apt-get install -y crossbuild-essential-$ARCH_DEBIAN \
+          && ln -v -s /usr/bin/$TOOLCHAIN-cpp /usr/$TOOLCHAIN/bin/cpp \
+          && ln -v -s /usr/bin/$TOOLCHAIN-gcc /usr/$TOOLCHAIN/bin/gcc \
+          && ln -v -s /usr/bin/$TOOLCHAIN-gcc /usr/$TOOLCHAIN/bin/cc \
+          && sed -i "s,configure,configure --cross-compile --cross-execute='$QEMU -L /usr/$TOOLCHAIN'," configure ; \
+    fi
+
+ENV PATH=/usr/$TOOLCHAIN/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+RUN set -x \
+    && dpkg --add-architecture $ARCH_DEBIAN \
+    && apt-get update \
+    && apt-get install -y \
+       libaio-dev:$ARCH_DEBIAN \
+       libarchive-dev:$ARCH_DEBIAN \
+       libavahi-client-dev:$ARCH_DEBIAN \
+       libcap-dev:$ARCH_DEBIAN \
+       libcmocka-dev:$ARCH_DEBIAN \
+       libgcrypt20-dev:$ARCH_DEBIAN \
+       libgnutls28-dev:$ARCH_DEBIAN \
+       libgpg-error-dev:$ARCH_DEBIAN \
+       libgpgme-dev:$ARCH_DEBIAN \
+       libkrb5-dev:$ARCH_DEBIAN \
+       libncurses5-dev:$ARCH_DEBIAN \
+       libpopt-dev:$ARCH_DEBIAN \
+       libtdb-dev:$ARCH_DEBIAN \
+       xfslibs-dev:$ARCH_DEBIAN \
+       zlib1g-dev:$ARCH_DEBIAN
+
+RUN set -x \
+        && ./configure \
         --prefix=/app \
         --with-smbpasswd-file=/app/etc/smbpasswd \
         --bundled-libraries=talloc \
@@ -94,9 +114,6 @@ RUN set -x \
         --without-ads
 
 RUN set -x \
-    && make
-
-RUN set -x \
     && make install
 
 CMD [ "/bin/bash" ]
@@ -104,6 +121,7 @@ CMD [ "/bin/bash" ]
 #
 # Run image
 #
+ARG DEBIAN_IMAGE=debian:buster-slim
 FROM ${DEBIAN_IMAGE}
 LABEL maintainer="Pavel Volkovitskiy <olfway@olfway.net>"
 

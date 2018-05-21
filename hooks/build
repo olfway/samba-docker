@@ -41,6 +41,22 @@ function docker_build() {
 
     DOCKER_BUILD_ARGS="${DOCKER_BUILD_ARGS:1}"
 
+    case $DOCKER_PLATFORM_NAME in
+        amd64)
+            DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg ARCH_DEBIAN=amd64"
+            ;;
+        aarch64)
+            DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg ARCH_DEBIAN=arm64 --build-arg QEMU=qemu-aarch64-static --build-arg TOOLCHAIN=aarch64-linux-gnu"
+            ;;
+        arm32v7)
+            DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg ARCH_DEBIAN=armhf --build-arg QEMU=qemu-arm-static --build-arg TOOLCHAIN=arm-linux-gnueabihf"
+            ;;
+        arm32v5)
+            DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg ARCH_DEBIAN=armel --build-arg QEMU=qemu-arm-static --build-arg TOOLCHAIN=arm-linux-gnueabi"
+            ;;
+    esac
+
+    echo "$(date '+%H:%M:%S') Running docker build ${DOCKER_BUILD_ARGS} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV} ${DOCKERFILE_PATH}"
     docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" "${DOCKERFILE_PATH}"
 }
 
