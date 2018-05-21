@@ -60,8 +60,6 @@ function docker_build() {
     docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" "${DOCKERFILE_PATH}"
 }
 
-find . -type f -name '*-manifest.json' -delete
-
 if [ "${DOCKER_PLATFORM_NAME}" != "" ]; then
     docker_build "${DOCKER_PLATFORM_NAME}"
 else
