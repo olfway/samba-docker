@@ -5,6 +5,7 @@ services:
     image: olfway/samba
     build:
       context: .
+    tty: true
     init: true
     hostname: time-machine
     container_name: time-machine
