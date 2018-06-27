@@ -4,6 +4,15 @@ set -eu
 
 export PATH=".:$PATH"
 
+RELEASE_NUMBERS=""
+DOCKER_RELEASE_TAGS=""
+DOCKERFILE_RELEASE="$(egrep -m1 'ARG [^_]*_VERSION[= ]' Dockerfile | tr '=' ' ' | cut -f3 -d' ')"
+for NUMBER in ${DOCKERFILE_RELEASE//\./ }; do
+    RELEASE_NUMBERS="${RELEASE_NUMBERS}.${NUMBER}"
+    DOCKER_RELEASE_TAGS="${DOCKER_RELEASE_TAGS} ${RELEASE_NUMBERS:1}"
+done
+export DOCKER_RELEASE_TAGS="${DOCKER_RELEASE_TAGS:1}"
+
 if [ "${DOCKER_TAG:-}" == "" ]; then
     case "$(uname -m)" in
     x86_64)

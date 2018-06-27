@@ -9,6 +9,13 @@ function docker_push() {
 
     echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}..."
     docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" 
+
+    for DOCKER_RELEASE_TAG in ${DOCKER_RELEASE_TAGS}; do
+      echo "$(date '+%H:%M:%S') Tagging "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" as ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}..."
+      docker tag "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}"
+      echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}..."
+      docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}"
+    done
 }
 
 if [ "${DOCKER_PLATFORM_NAME}" != "" ]; then

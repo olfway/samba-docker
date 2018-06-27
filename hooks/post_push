@@ -54,3 +54,6 @@ function docker_manifest_tag() {
 
 docker_manifest_tag "${DOCKER_TAG_REV}"
 docker_manifest_tag "${DOCKER_TAG}"
+for DOCKER_RELEASE_TAG in ${DOCKER_RELEASE_TAGS}; do
+  docker_manifest_tag "-${DOCKER_RELEASE_TAG}"
+done
