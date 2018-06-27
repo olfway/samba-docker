@@ -9,8 +9,10 @@ fi
 function docker_build() {
 
     DOCKER_PLATFORM_NAME="$1"
+    DOCKER_PLATFORM_TAG="${DOCKER_TAG}-${DOCKER_PLATFORM_NAME}"
+    DOCKER_PLATFORM_TAG_REV="${DOCKER_TAG_REV}-${DOCKER_PLATFORM_NAME}"
 
-    echo "$(date '+%H:%M:%S') Building ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}..."
+    echo "$(date '+%H:%M:%S') Building ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}..."
 
     DOCKER_PLATFORM="$(echo "${DOCKER_PLATFORMS}" | jq -r "select(.platform == \"${DOCKER_PLATFORM_NAME}\")" | tr -d '\n ')"
 
@@ -56,8 +58,8 @@ function docker_build() {
             ;;
     esac
 
-    echo "$(date '+%H:%M:%S') Running docker build ${DOCKER_BUILD_ARGS} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV} ${DOCKERFILE_PATH}"
-    docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" "${DOCKERFILE_PATH}"
+    echo "$(date '+%H:%M:%S') Running docker build ${DOCKER_BUILD_ARGS} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV} ${DOCKERFILE_PATH}"
+    docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}" "${DOCKERFILE_PATH}"
 }
 
 if [ "${DOCKER_PLATFORM_NAME}" != "" ]; then

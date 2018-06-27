@@ -4,17 +4,19 @@ source hooks/_conf
 
 function docker_push() {
     DOCKER_PLATFORM_NAME="$1"
-    echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}..."
-    docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}"
+    DOCKER_PLATFORM_TAG="${DOCKER_TAG}-${DOCKER_PLATFORM_NAME}"
+    DOCKER_PLATFORM_TAG_REV="${DOCKER_TAG_REV}-${DOCKER_PLATFORM_NAME}"
+    echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}..."
+    docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}"
 
-    echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}..."
-    docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG}" 
+    echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}..."
+    docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}"
 
     for DOCKER_RELEASE_TAG in ${DOCKER_RELEASE_TAGS}; do
-      echo "$(date '+%H:%M:%S') Tagging "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" as ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}..."
-      docker tag "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}${DOCKER_TAG_REV}" "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}"
-      echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}..."
-      docker push "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_RELEASE_TAG}"
+      echo "$(date '+%H:%M:%S') Tagging "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}" as ${DOCKER_REPO}:${DOCKER_RELEASE_TAG}-${DOCKER_PLATFORM_NAME}..."
+      docker tag "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}" "${DOCKER_REPO}:${DOCKER_RELEASE_TAG}-${DOCKER_PLATFORM_NAME}"
+      echo "$(date '+%H:%M:%S') Pushing ${DOCKER_REPO}:${DOCKER_RELEASE_TAG}-${DOCKER_PLATFORM_NAME}..."
+      docker push "${DOCKER_REPO}:${DOCKER_RELEASE_TAG}-${DOCKER_PLATFORM_NAME}"
     done
 }
 

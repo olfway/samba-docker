@@ -6,12 +6,13 @@ function docker_manifest_annotate_tag() {
 
     local DOCKER_TAG="$1"
     DOCKER_PLATFORM_NAME="$2"
+    DOCKER_PLATFORM_TAG="${DOCKER_TAG}-${DOCKER_PLATFORM_NAME}"
 
     DOCKER_PLATFORM="$(echo "${DOCKER_PLATFORMS}" | fgrep "\"${DOCKER_PLATFORM_NAME}\"")"
 
     DOCKER_PLATFORM_ARCH="$(echo "${DOCKER_PLATFORM}" | jq -r '.architecture')"
 
-    DOCKER_MANIFEST_ANNOTATE_ARGS="${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG} --os linux --arch ${DOCKER_PLATFORM_ARCH}"
+    DOCKER_MANIFEST_ANNOTATE_ARGS="${DOCKER_REPO}:${DOCKER_PLATFORM_TAG} --os linux --arch ${DOCKER_PLATFORM_ARCH}"
 
     DOCKER_PLATFORM_VARIANT="$(echo "${DOCKER_PLATFORM}" | jq -r '.variant')"
     if [ "${DOCKER_PLATFORM_VARIANT}" != "null" ]; then
@@ -24,19 +25,20 @@ function docker_manifest_annotate_tag() {
 
 function docker_manifest_tag() {
 
-    local DOCKER_TAG="${1:1}"
+    local DOCKER_TAG="${1}"
     local DOCKER_REPO="${DOCKER_REPO#index.docker.io/}"
     echo "$(date '+%H:%M:%S') Creating manifest ${DOCKER_REPO}:${DOCKER_TAG}..."
 
     DOCKER_PLATFORM_REPOS=""
     for DOCKER_PLATFORM_NAME in ${DOCKER_PLATFORM_NAMES}; do
-        echo "$(date '+%H:%M:%S') Pulling ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}..."
-        docker pull "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}" > /dev/null 2>&1 || true
-        if [ "$(docker image ls -q "${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}")" == "" ]; then
-            echo "$(date '+%H:%M:%S') Image ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG} not found"
+        DOCKER_PLATFORM_TAG="${DOCKER_TAG}-${DOCKER_PLATFORM_NAME}"
+        echo "$(date '+%H:%M:%S') Pulling ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}..."
+        docker pull "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}" > /dev/null 2>&1 || true
+        if [ "$(docker image ls -q "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}")" == "" ]; then
+            echo "$(date '+%H:%M:%S') Image ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG} not found"
             exit 0
         fi
-        DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS} ${DOCKER_REPO}:${DOCKER_PLATFORM_NAME}-${DOCKER_TAG}"
+        DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS} ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}"
     done
 
     DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS:1}"
@@ -52,8 +54,6 @@ function docker_manifest_tag() {
     docker manifest push "${DOCKER_REPO}:${DOCKER_TAG}"
 }
 
-docker_manifest_tag "${DOCKER_TAG_REV}"
-docker_manifest_tag "${DOCKER_TAG}"
-for DOCKER_RELEASE_TAG in ${DOCKER_RELEASE_TAGS}; do
-  docker_manifest_tag "-${DOCKER_RELEASE_TAG}"
+for DOCKER_RELEASE_TAG in ${DOCKER_TAG_REV} ${DOCKER_TAG} ${DOCKER_RELEASE_TAGS}; do
+  docker_manifest_tag "${DOCKER_RELEASE_TAG}"
 done
