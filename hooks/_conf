@@ -4,6 +4,8 @@ set -eu
 
 export PATH=".:$PATH"
 
+export DEBUG="${DEBUG:+echo RUN}"
+
 RELEASE_NUMBERS=""
 DOCKER_RELEASE_TAGS=""
 DOCKERFILE_RELEASE="$(egrep -m1 'ARG [^_]*_VERSION[= ]' Dockerfile | tr '=' ' ' | cut -f3 -d' ')"

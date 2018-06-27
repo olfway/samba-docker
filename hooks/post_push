@@ -20,7 +20,7 @@ function docker_manifest_annotate_tag() {
     fi
 
     echo "$(date '+%H:%M:%S') Annotating ${DOCKER_REPO}:${DOCKER_TAG} manifest with ${DOCKER_MANIFEST_ANNOTATE_ARGS}..."
-    docker manifest annotate "${DOCKER_REPO}:${DOCKER_TAG}" ${DOCKER_MANIFEST_ANNOTATE_ARGS}
+    $DEBUG docker manifest annotate "${DOCKER_REPO}:${DOCKER_TAG}" ${DOCKER_MANIFEST_ANNOTATE_ARGS}
 }
 
 function docker_manifest_tag() {
@@ -33,10 +33,10 @@ function docker_manifest_tag() {
     for DOCKER_PLATFORM_NAME in ${DOCKER_PLATFORM_NAMES}; do
         DOCKER_PLATFORM_TAG="${DOCKER_TAG}-${DOCKER_PLATFORM_NAME}"
         echo "$(date '+%H:%M:%S') Pulling ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}..."
-        docker pull "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}" > /dev/null 2>&1 || true
+        $DEBUG docker pull "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}" || true
         if [ "$(docker image ls -q "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}")" == "" ]; then
             echo "$(date '+%H:%M:%S') Image ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG} not found"
-            exit 0
+            $DEBUG exit 0
         fi
         DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS} ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}"
     done
@@ -44,7 +44,7 @@ function docker_manifest_tag() {
     DOCKER_PLATFORM_REPOS="${DOCKER_PLATFORM_REPOS:1}"
 
     echo "$(date '+%H:%M:%S') Creating manifest ${DOCKER_REPO}:${DOCKER_TAG} for ${DOCKER_PLATFORM_REPOS}..."
-    docker manifest create "${DOCKER_REPO}:${DOCKER_TAG}" ${DOCKER_PLATFORM_REPOS}
+    $DEBUG docker manifest create "${DOCKER_REPO}:${DOCKER_TAG}" ${DOCKER_PLATFORM_REPOS}
 
     for DOCKER_PLATFORM_NAME in ${DOCKER_PLATFORM_NAMES}; do
         docker_manifest_annotate_tag "${DOCKER_TAG}" "${DOCKER_PLATFORM_NAME}"

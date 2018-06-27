@@ -59,7 +59,7 @@ function docker_build() {
     esac
 
     echo "$(date '+%H:%M:%S') Running docker build ${DOCKER_BUILD_ARGS} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG} -t ${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV} ${DOCKERFILE_PATH}"
-    docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}" "${DOCKERFILE_PATH}"
+    $DEBUG docker build ${DOCKER_BUILD_ARGS} -t "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG}" -t "${DOCKER_REPO}:${DOCKER_PLATFORM_TAG_REV}" "${DOCKERFILE_PATH}"
 }
 
 if [ "${DOCKER_PLATFORM_NAME}" != "" ]; then
