@@ -136,6 +136,11 @@ RUN set -x \
     && echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/zz-force-ipv4 \
     && echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/zz-no-install-recommends
 
+# Fix dash upgrade
+RUN set -x \
+    && mkdir -p /usr/share/man/man1 \
+    && touch /usr/share/man/man1/sh.distrib.1.gz
+
 RUN set -x \
     && apt-get update \
     && apt-get dist-upgrade -y \
