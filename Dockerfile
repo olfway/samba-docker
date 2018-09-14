@@ -31,7 +31,7 @@ RUN set -x \
 
 WORKDIR /usr/src
 
-ARG SAMBA_VERSION=4.8.3
+ARG SAMBA_VERSION=4.9.0
 ARG SAMBA_URL=https://download.samba.org/pub/samba
 RUN set -x \
     && curl --ipv4 -O "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.asc" \
@@ -89,6 +89,7 @@ RUN set -x \
        libgnutls28-dev:$ARCH_DEBIAN \
        libgpg-error-dev:$ARCH_DEBIAN \
        libgpgme-dev:$ARCH_DEBIAN \
+       libjansson-dev:$ARCH_DEBIAN \
        libkrb5-dev:$ARCH_DEBIAN \
        libncurses5-dev:$ARCH_DEBIAN \
        libpopt-dev:$ARCH_DEBIAN \
@@ -143,6 +144,7 @@ RUN set -x \
        libcap2 \
        libgnutls30 \
        libgssapi-krb5-2 \
+       libjansson4 \
        libkrb5-3 \
        libpopt0 \
        libtdb1 \
