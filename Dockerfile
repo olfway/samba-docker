@@ -31,7 +31,7 @@ RUN set -x \
 
 WORKDIR /usr/src
 
-ARG SAMBA_VERSION=4.9.0
+ARG SAMBA_VERSION=4.9.3
 ARG SAMBA_URL=https://download.samba.org/pub/samba
 RUN set -x \
     && curl --ipv4 -O "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.asc" \
