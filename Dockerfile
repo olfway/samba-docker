@@ -32,7 +32,7 @@ RUN set -x \
 WORKDIR /usr/src
 
 ARG SAMBA_VERSION=4.9.3
-ARG SAMBA_URL=https://download.samba.org/pub/samba
+ARG SAMBA_URL=https://download.samba.org/pub/samba/stable
 RUN set -x \
     && curl --ipv4 -O "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.asc" \
     && curl --ipv4 "${SAMBA_URL}/samba-${SAMBA_VERSION}.tar.gz" | gunzip -d > "samba-${SAMBA_VERSION}.tar"
