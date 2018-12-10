@@ -52,7 +52,8 @@ COPY patches patches/
 WORKDIR /usr/src/samba-${SAMBA_VERSION}
 
 RUN set -x \
-    && patch -i ../patches/samba-4.8.1-hide-pcap-errors.patch -p1
+    && patch -i ../patches/samba-4.8.1-hide-pcap-errors.patch -p1 \
+    && patch -i ../patches/samba-4.9.0-tmsize-overflow-check.patch -p1
 
 ARG QEMU
 ENV QEMU=$QEMU
