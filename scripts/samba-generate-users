@@ -17,7 +17,7 @@ do
     ./scripts/samba-user-add $ARGS $USERNAME "$PASSWORD"
 done
 
-pdbedit -L | cut -f1 -d':' | sort \
+pdbedit --debuglevel=0 -L | cut -f1 -d':' | sort \
 | while
     read USERNAME
 do
